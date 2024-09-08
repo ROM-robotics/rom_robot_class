@@ -63,6 +63,10 @@ class Wheel
             return actual_velocity_rds;
         }
 
+        short getDesireRpm()
+        {
+            return ((short)(desire_velocity_rds * rds_to_rpm_ratio));
+        }
     private:
         short voltage; short min_voltage; short max_voltage;
         float current;

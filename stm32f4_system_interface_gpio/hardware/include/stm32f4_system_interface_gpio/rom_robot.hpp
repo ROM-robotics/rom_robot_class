@@ -10,8 +10,8 @@
  ** Ifdefs
  *****************************************************************************/
 
-#ifndef ROM_ROBOT_HPP_
-#define ROM_ROBOT_HPP_
+#ifndef ROM_ROBOT_CLASS_HPP_
+#define ROM_ROBOT_CLASS_HPP_
 
 /*****************************************************************************
  ** Includes
@@ -27,7 +27,7 @@
  ** Namespaces
  *****************************************************************************/
 
-namespace bobo
+namespace rom_dynamics
 {
 
 /*****************************************************************************
@@ -39,40 +39,45 @@ namespace bobo
 
 
 /*****************************************************************************
- ** Interface [Kobuki]
+ ** Interface [bobo]
  *****************************************************************************/
 /**
- * @brief  The core kobuki driver class.
+ * @brief  The core bobo driver class.
  *
  * This connects to the outside world via sigslots and get accessors.
  **/
-class Robot
-{
-public:
-  Robot();
-  ~Robot();
+  class Robot
+  {
+    public:
+      Robot()
+      {
 
-  // Delete copy constructor
-  Robot(const Robot&) = delete;
+      }
+      ~Robot();
 
-    // Delete move constructor
-  Robot(Robot&&) = delete;
+      Robot(const Robot&) = delete;
+      Robot(Robot&&) = delete;
+      Robot& operator=(const Robot&) = delete;
+      Robot& operator=(Robot&&) = delete;
 
-    // Delete copy assignment operator
-  Robot& operator=(const Robot&) = delete;
+      /* id */
+      std::string robot_name;
+      short robot_id;
+      
+      /* mobile base */
+      Wheel left_wheel;
+      Wheel right_wheel;
+      float basewidth;
 
-    // Delete move assignment operator
-  Robot& operator=(Robot&&) = delete;
+      /* serial */
+      McuSerial mcu_serial;
 
-private:
-  Wheel left_wheel;
-  Wheel right_wheel;
-  McuSerial mcu_serial;
+      /* serialize, deserialize */
 
-  float basewidth = 0;
-  
-};
+      /* sensors */
 
-} // namespace kobuki
+  };
 
-#endif /* ROM_ROBOT_HPP_ */
+} // namespace bobo
+
+#endif /* ROM_ROBOT_CLASS_HPP_ */

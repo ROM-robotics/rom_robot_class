@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-9da0890d0cc6d8152248.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "stm32f4_system_interface_gpio",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "stm32f4_system_interface_gpio::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-stm32f4_system_interface_gpio-Debug-86911cb7f5e9767d2c37.json",
+					"name" : "stm32f4_system_interface_gpio",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "stm32f4_system_interface_gpio_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-stm32f4_system_interface_gpio_uninstall-Debug-22c6404025830a347be2.json",
+					"name" : "stm32f4_system_interface_gpio_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Debug-d139b7aef9eaa9e5bdcf.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/mr_robot/ros2/developer_ws/src/stm32f4_system_interface_gpio/build",
+		"source" : "/home/mr_robot/ros2/developer_ws/src/stm32f4_system_interface_gpio"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
