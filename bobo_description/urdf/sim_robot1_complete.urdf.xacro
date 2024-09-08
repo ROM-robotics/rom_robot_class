@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="bobo_standalone">
+
+    <xacro:arg name="prefix" default="" />
+
+    <xacro:include filename="$(find bobo_description)/urdf/$(env BOBO_MODEL).xacro" />
+    <!-- <xacro:include filename="robot1.xacro" /> -->
+    
+    <xacro:include filename="$(env BOBO_MODEL)_ros2_control.xacro" /> 
+    <!-- <xacro:include filename="robot1_ros2_control.xacro" /> -->
+
+    <xacro:bobobot_ros2_control name="bobobot" prefix="$(arg prefix)" />
+    
+</robot>
