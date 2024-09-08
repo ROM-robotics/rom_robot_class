@@ -1,5 +1,5 @@
-#ifndef stm32f4_system_interface_gpio_COMMS_HPP
-#define stm32f4_system_interface_gpio_COMMS_HPP
+#ifndef _ROM_MCU_SERIAL_HPP
+#define _ROM_MCU_SERIAL_HPP
 
 // #include <cstring>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstdint>
 
-#include "rom_protocol.h"
+#include "rom_protocols.h"
 
 LibSerial::BaudRate convert_baud_rate(int baud_rate)
 {
@@ -31,12 +31,12 @@ LibSerial::BaudRate convert_baud_rate(int baud_rate)
   }
 }
 
-class STM32Board
+class McuSerial
 {
 
 public:
 
-  STM32Board() = default;
+  McuSerial() = default;
 
   void connect(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms)
   {  
@@ -137,20 +137,11 @@ public:
     led       = std::atoi(tokens[6].c_str());
     checksum  = std::atoi(tokens[7].c_str());
   }
-
-  // std::string read_stm32f4()
-  // {
-  //   std::string response = read_msg();
-  //   return response;
-  // }
   
   void set_parameter(PC_DATA *my_struct)
   {
     std::stringstream ss;
 
-    // ss << my_struct->right_desire_rpm << " "  << my_struct->left_desire_rpm << " " 
-    //    << (int16_t)(my_struct->reserve) << " "  << (int16_t)(my_struct->e1234567) << " "  << (int16_t)(my_struct->volt) << " " 
-    //    << my_struct->ampere << " "  << (int16_t)(my_struct->checksum) << "\r\n";
     ss << my_struct->right_desire_rpm << " "  << my_struct->left_desire_rpm << " " 
         << " "  << (my_struct->e1234567) << " " << (int16_t)(my_struct->checksum) << "\r\n";
 
@@ -176,4 +167,4 @@ private:
     int timeout_ms_;
 };
 
-#endif // stm32f4_system_interface_gpio_COMMS_HPP
+#endif // _ROM_MCU_SERIAL_HPP
