@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="M_PI" value="3.1415926535897931" /> 
+
+  <link name="base_footprint"/>
+    <joint name="base_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="base_footprint"/>
+      <child link="base_link" />
+    </joint>
+
+  <link name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0046524 -1.2029E-05 0.18162"
+        rpy="0 0 0" />
+      <mass
+        value="1.9421" />
+      <inertia
+        ixx="0.016249"
+        ixy="-2.6352E-08"
+        ixz="-0.00032505"
+        iyy="0.019076"
+        iyz="2.2146E-08"
+        izz="0.031848" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="wheel_right_link">
+    <inertial>
+      <origin
+        xyz="-6.88469101173261E-10 0.00261076778922063 1.46539359813236E-09"
+        rpy="0 0 0" />
+      <mass
+        value="1.13468316605061" />
+      <inertia
+        ixx="0.00214377737472316"
+        ixy="1.35474255028293E-09"
+        ixz="-1.11198689477431E-11"
+        iyy="0.00371288553259231"
+        iyz="-1.63769629423567E-09"
+        izz="0.00214377737749942" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/wheel_right_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/wheel_right_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_right_joint"
+    type="continuous">
+    <origin
+      xyz="-0.0005 -0.17971 0.0854"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheel_right_link" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="wheel_left_link">
+    <inertial>
+      <origin
+        xyz="1.61277113885916E-09 -0.00261076778922059 1.42610201425697E-10"
+        rpy="0 0 0" />
+      <mass
+        value="1.13468316605061" />
+      <inertia
+        ixx="0.00214377738646834"
+        ixy="2.09699277269092E-09"
+        ixz="-4.27898719562988E-12"
+        iyy="0.00371288553259229"
+        iyz="-3.46407025976004E-10"
+        izz="0.00214377736575422" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/wheel_left_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/wheel_left_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_left_joint"
+    type="continuous">
+    <origin
+      xyz="-0.0005 0.17971 0.0854"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheel_left_link" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="caster_front_right_link">
+    <inertial>
+      <origin
+        xyz="-1.38777878078145E-17 -1.38777878078145E-17 -2.77555756156289E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.0103871549572359" />
+      <inertia
+        ixx="9.76068238842766E-07"
+        ixy="4.37487850150777E-08"
+        ixz="4.36668756326797E-23"
+        iyy="1.47229853084168E-06"
+        iyz="5.40669622917979E-22"
+        izz="9.72240768629191E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_front_right_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_front_right_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="caster_front_right_joint"
+    type="continuous">
+    <origin
+      xyz="0.16676 -0.077762 0.016"
+      rpy="0 0 0.43633" />
+    <parent
+      link="base_link" />
+    <child
+      link="caster_front_right_link" />
+    <axis
+      xyz="-0.087156 -0.99619 0" />
+  </joint>
+  <link
+    name="caster_front_left_link">
+    <inertial>
+      <origin
+        xyz="-1.38777878078145E-17 -5.55111512312578E-17 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.0103871549572359" />
+      <inertia
+        ixx="9.76068447320134E-07"
+        ixy="-4.37499673489831E-08"
+        ixz="3.49242855259726E-23"
+        iyy="1.47229832236431E-06"
+        iyz="-6.51906793689185E-22"
+        izz="9.72240768629191E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_front_left_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_front_left_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="caster_front_left_joint"
+    type="continuous">
+    <origin
+      xyz="0.16676 0.077762 0.016"
+      rpy="0 0 -0.43633" />
+    <parent
+      link="base_link" />
+    <child
+      link="caster_front_left_link" />
+    <axis
+      xyz="0.087156 -0.99619 0" />
+  </joint>
+  <link
+    name="caster_back_left_link">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.0103871549572358" />
+      <inertia
+        ixx="9.76068415792723E-07"
+        ixy="4.37497885481657E-08"
+        ixz="-3.74882476298782E-14"
+        iyy="1.47229835389171E-06"
+        iyz="-4.28492630568062E-13"
+        izz="9.72240768629189E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_back_left_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_back_left_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="caster_back_left_joint"
+    type="continuous">
+    <origin
+      xyz="-0.16676 0.077762 0.016"
+      rpy="0 0 0.43633" />
+    <parent
+      link="base_link" />
+    <child
+      link="caster_back_left_link" />
+    <axis
+      xyz="-0.087156 -0.99619 0" />
+  </joint>
+  <link
+    name="caster_back_right_link">
+    <inertial>
+      <origin
+        xyz="-5.55111512312578E-17 0 2.77555756156289E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.0103871549572359" />
+      <inertia
+        ixx="9.76068447320135E-07"
+        ixy="-4.37499673489848E-08"
+        ixz="4.3623233005725E-23"
+        iyy="1.47229832236431E-06"
+        iyz="-5.74330631173444E-22"
+        izz="9.72240768629192E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_back_right_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://bobo_description/meshes/caster_back_right_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="caster_back_right_joint"
+    type="continuous">
+    <origin
+      xyz="-0.16676 -0.077762 0.016"
+      rpy="0 0 -0.43633" />
+    <parent
+      link="base_link" />
+    <child
+      link="caster_back_right_link" />
+    <axis
+      xyz="0.087156 -0.99619 0" />
+  </joint>
+
+  <!-- ROM ADD -->
+  <!-- LASER -->
+  <joint name="laser_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="laser_link"/>
+      <origin xyz="0.18 0 0.24" rpy="3.1415926 0 0"/>
+  </joint>
+
+  <link name="laser_link">
+      <visual>
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.05 0.05 0.05"/>
+        </geometry>
+        <material name="grey_blue"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0.015 0 -0.0065" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="0.0315" radius="0.055"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <mass value="0.114" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+  <!-- IMU -->
+  <joint name="imu_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="imu_link"/>
+      <origin xyz="0 0 0.268" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link">
+      <visual>
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.02 0.02"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+  </link>
+  <!-- 3D CAM_Left -->
+  <joint name="cam3d_left_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="cam3d_left_link"/>
+      <origin xyz="0 0.3 0.5" rpy="0 0 0"/>
+  </joint>
+
+  <link name="cam3d_left_link">
+      <visual>
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.02 0.02"/>
+        </geometry>
+        <material name="orange"/>
+      </visual>
+  </link>
+
+  <!-- 3D CAM_Right -->
+  <joint name="cam3d_right_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="cam3d_right_link"/>
+      <origin xyz="0 -0.3 0.5" rpy="0 0 0"/>
+  </joint>
+  <link name="cam3d_right_link">
+      <visual>
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.02 0.02"/>
+        </geometry>
+        <material name="orange"/>
+      </visual>
+  </link>
+
+  <!-- 3D CAM_Top -->
+  <joint name="cam3d_top_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="cam3d_top_link"/>
+      <origin xyz="0.15 0 0.8" rpy="0 0 0"/>
+  </joint>
+
+  <link name="cam3d_top_link">
+      <visual>
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.02 0.02"/>
+        </geometry>
+        <material name="orange"/>
+      </visual>
+  </link>
+  <!-- materials colors for rviz  -->
+  <material name="white">
+    <color rgba="1 1 1 0.8"/>
+  </material>
+
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+
+  <material name="light_grey">
+    <color rgba="0.6 0.6 0.6 0.7"/>
+  </material>
+
+  <material name="dark_grey">
+    <color rgba="0.3 0.3 0.3 0.7"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0.1 0.1 0.1 0.8"/>
+  </material>
+
+  <material name="red">
+    <color rgba="1 0 0 0.8"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0.0 0.0 1.0 1"/>
+  </material>
+
+  <material name="grey_blue">
+    <color rgba="0.4 0.4 1.0 0.8"/>
+  </material>
+
+  <material name="orange">
+    <color rgba="1.0 0.7 0.0 1"/>
+  </material>
+  <!-- ROM END -->
+</robot>
