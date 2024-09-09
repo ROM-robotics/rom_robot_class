@@ -5,16 +5,20 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+import os
 
 
 def generate_launch_description():
     # Get URDF via xacro
+    bobo_model = os.getenv('BOBO_MODEL', 'robot2') # robot1 , robot2, sim_robot2
+    robot_urdf_name = bobo_model+'_complete.urdf.xacro'
+
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("bobo_hardware"), "urdf", "diffbot.urdf.xacro"]
+                [FindPackageShare("bobo_description"), "urdf", robot_urdf_name]
             ),
         ]
     )

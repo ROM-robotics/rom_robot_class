@@ -64,6 +64,12 @@ install(
   DESTINATION include/bobo_hardware
 )
 
+install(DIRECTORY
+	launch
+  config
+	DESTINATION share/${PROJECT_NAME}
+)
+
 install(TARGETS bobo_hardware
   EXPORT export_bobo_hardware
   ARCHIVE DESTINATION lib
