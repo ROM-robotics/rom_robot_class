@@ -1,2 +1,0 @@
-# ROM_DYNAMICS'S Product ID = 12345, Vendor Id = 12345
-KERNEL=="ttyACM*", ATTRS{idVendor}=="3039", ATTRS{idProduct}=="3039", MODE:="0777", SYMLINK+="ROBOTCOM"

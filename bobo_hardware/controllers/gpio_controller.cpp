@@ -10,9 +10,6 @@ controller_interface::CallbackReturn GPIOController::on_init()
   {
     auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>()); // ?
     auto_declare<std::vector<std::string>>("outputs", std::vector<std::string>());
-
-    //auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>());
-    //auto_declare<std::vector<std::string>>("outputs", std::vector<std::string>());
   }
   catch (const std::exception & e)
   {
@@ -42,22 +39,24 @@ controller_interface::InterfaceConfiguration GPIOController::state_interface_con
 
 controller_interface::return_type GPIOController::update(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
-{ // ------------------ROM to edit junk
-  // send inputs
-  // for (size_t i = 0; i < state_interfaces_.size(); i++)
-  // {
-  //   RCLCPP_DEBUG(
-  //     get_node()->get_logger(), "%s: (%f)", state_interfaces_[i].get_name().c_str(),
-  //     state_interfaces_[i].get_value());
-  //   gpio_msg_.values.at(i) = static_cast<float>(state_interfaces_.at(i).get_value());
-  // }
+{ // ROM  edit 
 
-  RCLCPP_DEBUG(
-      get_node()->get_logger(), "%s: (%f)", state_interfaces_[0].get_name().c_str(),
+  //RCLCPP_DEBUG(
+      // get_node()->get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "%s: (%f)", state_interfaces_[0].get_name().c_str(),
+      // state_interfaces_[0].get_value());
+      RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[0].get_name().c_str(),
       state_interfaces_[0].get_value());
+       RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[1].get_name().c_str(),
+      state_interfaces_[1].get_value());
+       RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[2].get_name().c_str(),
+      state_interfaces_[2].get_value());
+       RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[3].get_name().c_str(),
+      state_interfaces_[3].get_value());
+       RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[4].get_name().c_str(),
+      state_interfaces_[4].get_value());
   estop_msg_.data = static_cast<float>(state_interfaces_[0].get_value());
   stop_publisher0_->publish(estop_msg_);
-
+  
   gpio_msg1_.data = static_cast<float>(state_interfaces_[1].get_value());
   gpio_publisher1_->publish(gpio_msg1_);
 
@@ -70,39 +69,6 @@ controller_interface::return_type GPIOController::update(
   gpio_msg4_.data = static_cast<float>(state_interfaces_[4].get_value());
   gpio_publisher4_->publish(gpio_msg4_);
 
-  // set outputs
-  /*if (!command_ptr0 & !command_ptr1 & !command_ptr2 & !command_ptr3 & !command_ptr4 )
-  {
-    // no command received yet
-    return controller_interface::return_type::OK;
-  }
-  // if (output_cmd_ptr_->data.size() != command_interfaces_.size())
-  // {
-  //   RCLCPP_ERROR_THROTTLE(
-  //     get_node()->get_logger(), *(get_node()->get_clock()), 1000,
-  //     "command size (%zu) does not match number of interfaces (%zu)", output_cmd_ptr_->data.size(),
-  //     command_interfaces_.size());
-  //   return controller_interface::return_type::ERROR;
-  // }
-
-  // for (size_t i = 0; i < command_interfaces_.size(); i++)
-  // {
-  //   command_interfaces_[i].set_value(output_cmd_ptr_->data[i]);
-  //   RCLCPP_DEBUG(
-  //     get_node()->get_logger(), "%s: (%f)", command_interfaces_[i].get_name().c_str(),
-  //     command_interfaces_[i].get_value());
-  // }
-
-  command_interfaces_[0].set_value(command_ptr0->data);
-  command_interfaces_[1].set_value(command_ptr1->data);
-    RCLCPP_DEBUG(
-      get_node()->get_logger(), "%s: (%f)", command_interfaces_[1].get_name().c_str(),
-      command_interfaces_[1].get_value());
-  
-  command_interfaces_[2].set_value(command_ptr2->data);
-  command_interfaces_[3].set_value(command_ptr3->data);
-  command_interfaces_[4].set_value(command_ptr4->data);*/
-
   //add something 
 
   if (command_ptr0 != nullptr) {
@@ -110,7 +76,7 @@ controller_interface::return_type GPIOController::update(
   }
   if (command_ptr1 != nullptr) {
     command_interfaces_[1].set_value(command_ptr1->data);
-    RCLCPP_DEBUG(get_node()->get_logger(), "%s: (%f)", command_interfaces_[1].get_name().c_str(), command_interfaces_[1].get_value());
+    RCLCPP_INFO(get_node()->get_logger(), "%s: (%f)", command_interfaces_[1].get_name().c_str(), command_interfaces_[1].get_value());
   }
   if (command_ptr2 != nullptr) {
     command_interfaces_[2].set_value(command_ptr2->data);
@@ -136,10 +102,6 @@ controller_interface::CallbackReturn GPIOController::on_configure(
 
     initMsgs();
 
-    // register publisher
-    // Original --> gpio_publisher_ = get_node()->create_publisher<control_msgs::msg::InterfaceValue>(
-    //   "~/inputs", rclcpp::SystemDefaultsQoS());
-
     stop_publisher0_ = get_node()->create_publisher<romCmdType>(
       "~/estop/status", rclcpp::SystemDefaultsQoS());
     gpio_publisher1_ = get_node()->create_publisher<romCmdType>(
@@ -150,11 +112,6 @@ controller_interface::CallbackReturn GPIOController::on_configure(
       "~/led3/status",  rclcpp::SystemDefaultsQoS());
     gpio_publisher4_ = get_node()->create_publisher<romCmdType>(
       "~/led4/status",  rclcpp::SystemDefaultsQoS());
-
-    // register subscriber
-    // Original --> subscription_command_ = get_node()->create_subscription<CmdType>(
-    //   "~/commands", rclcpp::SystemDefaultsQoS(),
-    //   [this](const CmdType::SharedPtr msg) { output_cmd_ptr_ = msg; });
 
     wheels_estop_command0_ = get_node()->create_subscription<romCmdType>(
       "~/estop/command", rclcpp::SystemDefaultsQoS(),
@@ -180,9 +137,7 @@ controller_interface::CallbackReturn GPIOController::on_configure(
 }
 
 void GPIOController::initMsgs()
-{ // Edited
-  //gpio_msg_.interface_names = inputs_;
-  //gpio_msg_.values.resize(inputs_.size());
+{ 
   estop_msg_.data = 0; 
   gpio_msg1_.data = 0; 
   gpio_msg2_.data = 0; 

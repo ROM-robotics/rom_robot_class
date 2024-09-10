@@ -8,11 +8,10 @@
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "bobo_hardware/rom_communication.h"
 
-PC_DATA transmit_data = {0,0,0,0};
-MCU_DATA receive_data = {0,0,0,0,0,0,0,0};
-
-struct e1234567_status e_leds_status;
+PC_DATA transmit_data = {0,0,0,0,0,0,0,0};
+MCU_DATA receive_data = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 //int16_t i=0; int16_t j=0;
 
@@ -32,16 +31,14 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
   }
   cfg_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
   cfg_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
-  cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]); // no use
+  cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]);
   cfg_.device = info_.hardware_parameters["device"];
   cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
   cfg_.timeout_ms = std::stof(info_.hardware_parameters["timeout_ms"]);
   cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
-  //cfg_.led_max_volt = std::stoi(info_.hardware_parameters["led_max_volt"]);
-  //cfg_.led_min_volt = std::stoi(info_.hardware_parameters["led_min_volt"]);
-
-  cfg_.base_width = std::stof(info_.hardware_parameters["base_width"]);
+  cfg_.led_max_volt = std::stoi(info_.hardware_parameters["led_max_volt"]);
+  cfg_.led_min_volt = std::stoi(info_.hardware_parameters["led_min_volt"]);
 
   RCLCPP_INFO(rclcpp::get_logger(" =================== "), "================================");
   RCLCPP_INFO(rclcpp::get_logger(" \033[1;36mROM DYNAMIC Co.,Ltd \033[1;0m "), " \033[1;36mChecking parameters ... \033[1;0m");
@@ -58,8 +55,9 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
     RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "PID values not supplied, using defaults.");
   }
   
-  bobo_robot.left_wheel.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
-  bobo_robot.right_wheel.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
+
+  wheel_l_.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
+  wheel_r_.setup(cfg_.right_wheel_name, cfg_.enc_counts_per_rev);
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
@@ -128,24 +126,15 @@ Stm32Hardware::on_configure(const rclcpp_lifecycle::State & /*previous_state*/) 
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Configuring ...please wait...");
 
   // ROM ADD
-  std::fill(hw_gpio_commands.begin(), hw_gpio_commands.end(), 0);
+  std::fill(hw_gpio_commands.begin(), hw_gpio_commands.end(), 0); //mcu ကလာတဲ့ data ကို update လုပ်ပေးရန်
   std::fill(hw_gpio_states.begin()  , hw_gpio_states.end()  , 0);
 
-  e_leds_status.estop_status = 0;
-  e_leds_status.led1_status  = 0;
-  e_leds_status.led2_status  = 0;
-  e_leds_status.led3_status  = 0;
-  e_leds_status.led4_status  = 0;
-  e_leds_status.led5_status  = 0;
-  e_leds_status.led6_status  = 0;
-  e_leds_status.led7_status  = 0;
-
   // ROM END
-  if (bobo_robot.mcu_serial.connected())
+  if (comms_.connected())
   {
-    bobo_robot.mcu_serial.disconnect();
+    comms_.disconnect();
   }
-  bobo_robot.mcu_serial.connect(cfg_.device, cfg_.baud_rate, cfg_.timeout_ms);
+  comms_.connect(cfg_.device, cfg_.baud_rate, cfg_.timeout_ms);
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Successfully configured!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -156,11 +145,11 @@ Stm32Hardware::export_state_interfaces()     // MCU ကနေ ROS ကို သ�
 { 
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(bobo_robot.left_wheel.name, hardware_interface::HW_IF_POSITION, &bobo_robot.left_wheel.actual_position));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(bobo_robot.left_wheel.name, hardware_interface::HW_IF_VELOCITY, &bobo_robot.left_wheel.actual_velocity_rds));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_l_.name, hardware_interface::HW_IF_POSITION, &wheel_l_.pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_l_.name, hardware_interface::HW_IF_VELOCITY, &wheel_l_.vel));
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(bobo_robot.right_wheel.name, hardware_interface::HW_IF_POSITION, &bobo_robot.right_wheel.actual_position));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(bobo_robot.right_wheel.name, hardware_interface::HW_IF_VELOCITY, &bobo_robot.right_wheel.actual_velocity_rds));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_r_.name, hardware_interface::HW_IF_POSITION, &wheel_r_.pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.vel));
 
   // ROM ADD
  
@@ -182,10 +171,10 @@ Stm32Hardware::export_command_interfaces()   // MCU ကို သွားမည
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    bobo_robot.left_wheel.name, hardware_interface::HW_IF_VELOCITY, &bobo_robot.left_wheel.desire_velocity_rds));
+    wheel_l_.name, hardware_interface::HW_IF_VELOCITY, &wheel_l_.cmd));
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    bobo_robot.right_wheel.name, hardware_interface::HW_IF_VELOCITY, &bobo_robot.right_wheel.desire_velocity_rds));
+    wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.cmd));
 
   // ROM ADD
   
@@ -206,9 +195,9 @@ hardware_interface::CallbackReturn
 Stm32Hardware::on_cleanup(const rclcpp_lifecycle::State & /*previous_state*/)   // actual data များ Zero လုပ်ပေးထားတယ်။
 {
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Cleaning up ...please wait...");
-  if (bobo_robot.mcu_serial.connected())
+  if (comms_.connected())
   {
-    bobo_robot.mcu_serial.disconnect();
+    comms_.disconnect();
   }
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Successfully cleaned up!");
 
@@ -220,13 +209,13 @@ hardware_interface::CallbackReturn
 Stm32Hardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)  // desire, actual are zeros
 {
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Activating ...please wait...");
-  if (!bobo_robot.mcu_serial.connected())
+  if (!comms_.connected())
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
   if (cfg_.pid_p > 0)
   {
-    bobo_robot.mcu_serial.set_pid_values(cfg_.pid_p,cfg_.pid_d,cfg_.pid_i,cfg_.pid_o);
+    comms_.set_pid_values(cfg_.pid_p,cfg_.pid_d,cfg_.pid_i,cfg_.pid_o);
   }
   
   // command and state should be equal when starting
@@ -258,18 +247,22 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
   // warning hide
   ROM_UNUSED(period);
 
-  if (!bobo_robot.mcu_serial.connected())
+  if (!comms_.connected())
   {
-    RCLCPP_INFO(rclcpp::get_logger("DiffBotSystemHardware"), "comms_.connected() is false.");
+    RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "comms_.connected() is false.");
     return hardware_interface::return_type::ERROR;
   }
-  bobo_robot.mcu_serial.read_values(receive_data.right_actual_rpm,receive_data.left_actual_rpm,
-                      receive_data.right_encoder_count,receive_data.left_encoder_count,
-                      receive_data.volt, receive_data.ampere,receive_data.e1234567,
-                      receive_data.checksum);
-  int16_t calculated_chksum = (int16_t)(receive_data.right_actual_rpm+receive_data.left_actual_rpm+
-                      receive_data.right_encoder_count+receive_data.left_encoder_count+
-                      receive_data.volt+receive_data.e1234567);
+  
+  // comms_.read_values(receive_data.right_actual_rpm,&receive_data.left_actual_rpm,
+  //                     receive_data.right_encoder_count,receive_data.left_encoder_count,
+  //                     receive_data.volt, receive_data.ampere,receive_data.e1234567,
+  //                     receive_data.checksum);
+  // int16_t calculated_chksum = (int16_t)(receive_data.right_actual_rpm+receive_data.left_actual_rpm+
+  //                     receive_data.right_encoder_count+receive_data.left_encoder_count+
+  //                     receive_data.volt+receive_data.e1234567);
+
+  comms_.read_values(&receive_data);
+  int16_t calculated_chksum = calculateChecksumForMcuData(&receive_data); 
 
 #ifdef ROM_DEBUG
   //RCLCPP_INFO(rclcpp::get_logger("\033[1;35mTx\033[1;0m"), "\033[1;35m Incoming : %s \033[1;0m", response.c_str());
@@ -298,12 +291,22 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
   }
   else 
   {
-    // to transfer leds and estop state to gpio controller
-    hw_gpio_states[0] = _Bool(receive_data.e1234567 & 0b0000000010000000);
-    hw_gpio_states[1] = _Bool(receive_data.e1234567 & 0b0000000001000000);
-    hw_gpio_states[2] = _Bool(receive_data.e1234567 & 0b0000000000100000);
-    hw_gpio_states[3] = _Bool(receive_data.e1234567 & 0b0000000000010000);
-    hw_gpio_states[4] = _Bool(receive_data.e1234567 & 0b0000000000001000);
+    //RCLCPP_INFO(rclcpp::get_logger("\033[1;35mRx\033[1;0m"), "\033[1;35m e1234567         : %hd \033[1;0m",receive_data.e1234567);
+
+    // to transfer leds and estop state to gpio controller စစ်ဆေးရန်
+    // hw_gpio_states[0] = _Bool(receive_data.e1234567 & 0b0000000010000000);
+    // hw_gpio_states[1] = _Bool(receive_data.e1234567 & 0b0000000001000000);
+    // hw_gpio_states[2] = _Bool(receive_data.e1234567 & 0b0000000000100000);
+    // hw_gpio_states[3] = _Bool(receive_data.e1234567 & 0b0000000000010000);
+    // hw_gpio_states[4] = _Bool(receive_data.e1234567 & 0b0000000000001000);
+
+    
+    hw_gpio_states[0] = receive_data.estop;
+    hw_gpio_states[1] = receive_data.led1;
+    hw_gpio_states[2] = receive_data.led2;
+    hw_gpio_states[3] = receive_data.led3;
+    hw_gpio_states[4] = receive_data.led4;
+    
 
     #ifdef ROM_DEBUG
     RCLCPP_INFO(rclcpp::get_logger("\033[1;35mESTOP\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[0]);
@@ -314,21 +317,16 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     RCLCPP_INFO(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "GPIOs hw_gpio_states[] read!");
     #endif
 
-    // Encoder values to wheel positions ( check encoder overflows )
-    bobo_robot.left_wheel.encoder_counts  = receive_data.left_encoder_count;
-    bobo_robot.right_wheel.encoder_counts = receive_data.right_encoder_count;
-
-    bobo_robot.left_wheel.actual_velocity_rpm  = receive_data.left_actual_rpm;
-    bobo_robot.right_wheel.actual_velocity_rpm = receive_data.right_actual_rpm;
-
+    // Encoder values to wheel positions ( Author say check encoder overflows )
+    // တကယ်လို့ encoder counts နဲ့ သုံးရင် အောက်ပါ codes များ မလိုလောက်ပါ။
     // လိုအပ်ချက်ပေါ်မူတည်ပြီး ပြင်ဆင်ပေးဖို့လိုတယ်။
-    bobo_robot.left_wheel.actual_position      = bobo_robot.left_wheel.getActualPosition(receive_data.left_encoder_count);
-    bobo_robot.left_wheel.actual_velocity_rds  = bobo_robot.left_wheel.getActualRadianPerSecond();
+    wheel_l_.pos = wheel_l_.calc_enc_angle();                     // radian calculation Ok, but check encoder overflow
+    wheel_l_.vel = wheel_l_.actual_rpm * 0.10471975511965977;     // radians per delta seconds calculation OK
 
-    bobo_robot.right_wheel.actual_position     = bobo_robot.right_wheel.getActualPosition(receive_data.right_encoder_count);
-    bobo_robot.right_wheel.actual_velocity_rds = bobo_robot.right_wheel.getActualRadianPerSecond();
+    wheel_r_.pos = wheel_r_.calc_enc_angle();
+    wheel_r_.vel = wheel_r_.actual_rpm * 0.10471975511965977;    // radians per delta seconds calculation OK
 
-  // RCLCPP_INFO(rclcpp::get_logger("\033[1;36mIncoming Message\033[1;0m"), "\033[1;36m%d %d %d %d %d\033[1;0m", right_wheel.actual_rpm, left_wheel.actual_rpm, right_wheel.enc, left_wheel.enc, right_wheel.bat_status);
+  // RCLCPP_INFO(rclcpp::get_logger("\033[1;36mIncoming Message\033[1;0m"), "\033[1;36m%d %d %d %d %d\033[1;0m", wheel_r_.actual_rpm, wheel_l_.actual_rpm, wheel_r_.enc, wheel_l_.enc, wheel_r_.bat_status);
   }
 
   #ifdef ROM_DEBUG
@@ -340,19 +338,20 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
 hardware_interface::return_type 
 Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) // PC က desire ကို e123 ထဲထည့်။
 {
-  if (!bobo_robot.mcu_serial.connected())
+  if (!comms_.connected())
   {
     RCLCPP_INFO(rclcpp::get_logger("[ Robot VCOM port ]"), "comms_.connected() is false.");
     return hardware_interface::return_type::ERROR;
   }
   
   // ဒါက radian per second ကို revolute per minute ပြောင်းဖို့လိုတယ်။
-  transmit_data.left_desire_rpm  = bobo_robot.left_wheel.getDesireRpm();
-  transmit_data.right_desire_rpm = bobo_robot.right_wheel.getDesireRpm();
+  transmit_data.left_desire_rpm  = (wheel_l_.cmd * 9.54929658551); // 60/(2*pi)
+  transmit_data.right_desire_rpm = (wheel_r_.cmd * 9.54929658551);
   // transmit_data.left_desire_rpm  = i++;
   // transmit_data.right_desire_rpm = j++;
 
   // ROM ADD
+  /*
   hw_gpio_commands[0] > 0  ?  e_leds_status.estop_status = 1  :  e_leds_status.estop_status = 0;
   hw_gpio_commands[1] > 0  ?  e_leds_status.led1_status  = 1  :  e_leds_status.led1_status  = 0;
   hw_gpio_commands[2] > 0  ?  e_leds_status.led2_status  = 1  :  e_leds_status.led2_status  = 0;
@@ -363,12 +362,22 @@ Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*p
   (e_leds_status.led1_status<<6) + (e_leds_status.led2_status<<5) + (e_leds_status.led3_status<<4) +
   (e_leds_status.led4_status<<3) + (e_leds_status.led5_status>>2) + (e_leds_status.led6_status<<1) +
   (e_leds_status.led7_status) );
+  */
+  
+  // not equl zero to be check 
+  hw_gpio_commands[0] != 0  ?  transmit_data.estop = 1  :  transmit_data.estop = 0;
+  hw_gpio_commands[1] != 0  ?  transmit_data.led1 = 1   :  transmit_data.led1 = 0;
+  hw_gpio_commands[2] != 0  ?  transmit_data.led2 = 1   :  transmit_data.led2 = 0;
+  hw_gpio_commands[3] != 0  ?  transmit_data.led3  = 1  :  transmit_data.led3  = 0;
+  hw_gpio_commands[4] != 0  ?  transmit_data.led4  = 1  :  transmit_data.led4 = 0;
+  
 
   
   // ROM END
-  transmit_data.checksum = (int16_t)(transmit_data.left_desire_rpm+transmit_data.right_desire_rpm+transmit_data.e1234567);
+  transmit_data.checksum = 0;
+  transmit_data.checksum = calculateChecksumForPcData(&transmit_data);
 
-  bobo_robot.mcu_serial.set_parameter(&transmit_data);
+  comms_.set_parameter(&transmit_data);
 
   #ifdef ROM_DEBUG
   //RCLCPP_INFO(rclcpp::get_logger("\033[1;32mTx\033[1;0m"), "\033[1;32m Outgoing : %s \033[1;0m",ss.c_str());

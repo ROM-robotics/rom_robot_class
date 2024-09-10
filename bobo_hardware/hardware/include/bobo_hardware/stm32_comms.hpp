@@ -1,5 +1,5 @@
-#ifndef _ROM_MCU_SERIAL_HPP
-#define _ROM_MCU_SERIAL_HPP
+#ifndef bobo_hardware_COMMS_HPP
+#define bobo_hardware_COMMS_HPP
 
 // #include <cstring>
 #include <sstream>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstdint>
 
-#include "rom_protocols.h"
+#include "bobo_hardware/rom_communication.h"
 
 LibSerial::BaudRate convert_baud_rate(int baud_rate)
 {
@@ -31,12 +31,12 @@ LibSerial::BaudRate convert_baud_rate(int baud_rate)
   }
 }
 
-class McuSerial
+class STM32Board
 {
 
 public:
 
-  McuSerial() = default;
+  STM32Board() = default;
 
   void connect(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms)
   {  
@@ -103,7 +103,7 @@ public:
     std::string response = send_msg("\r");
   }
 
-  void read_values(int16_t &r_act_rpm, int16_t &l_act_rpm, int32_t &r_enc, int32_t &l_enc, int16_t &volt, float &amp, int16_t &led, int16_t &checksum)
+  void read_values(MCU_DATA *data)
   {
     serial_conn_.FlushIOBuffers(); // Just in case
 
@@ -128,22 +128,49 @@ public:
     	tokens.push_back(token);
     }
     
-    r_act_rpm = std::atoi(tokens[0].c_str());
-    l_act_rpm = std::atoi(tokens[1].c_str());
-    r_enc     = std::atoi(tokens[2].c_str());
-    l_enc     = std::atoi(tokens[3].c_str());
-    volt      = std::atoi(tokens[4].c_str());
-    amp       = std::atof(tokens[5].c_str());
-    led       = std::atoi(tokens[6].c_str());
-    checksum  = std::atoi(tokens[7].c_str());
+    // r_act_rpm = std::atoi(tokens[0].c_str());
+    // l_act_rpm = std::atoi(tokens[1].c_str());
+    // r_enc     = std::atoi(tokens[2].c_str());
+    // l_enc     = std::atoi(tokens[3].c_str());
+    // volt      = std::atoi(tokens[4].c_str());
+    // amp       = std::atof(tokens[5].c_str());
+    // led       = std::atoi(tokens[6].c_str());
+    // checksum  = std::atoi(tokens[7].c_str());
+
+    data->right_actual_rpm     = std::atoi(tokens[0].c_str());
+		data->left_actual_rpm      = std::atoi(tokens[1].c_str());
+		data->right_encoder_count  = std::atoi(tokens[2].c_str());
+		data->left_encoder_count   = std::atoi(tokens[3].c_str());
+		data->volt                 = std::atoi(tokens[4].c_str());
+		data->ampere               = std::atof(tokens[5].c_str());
+		data->estop                = std::atoi(tokens[6].c_str());
+    data->led1                 = std::atoi(tokens[7].c_str());
+		data->led2                 = std::atoi(tokens[8].c_str());
+		data->led3                 = std::atoi(tokens[9].c_str());
+		data->led4                 = std::atoi(tokens[10].c_str());
+		data->bump1                = std::atoi(tokens[11].c_str());
+		data->cliff                = std::atof(tokens[12].c_str());
+		data->ir                   = std::atof(tokens[13].c_str());
+		data->imu_z_vel            = std::atof(tokens[14].c_str());
+		data->imu_z_rotate         = std::atof(tokens[15].c_str());
+		data->reserved1            = std::atoi(tokens[16].c_str());
+		data->reserved2            = std::atoi(tokens[17].c_str());
+		data->checksum             = std::atoi(tokens[18].c_str());
   }
+
+  // std::string read_stm32f4()
+  // {
+  //   std::string response = read_msg();
+  //   return response;
+  // }
   
   void set_parameter(PC_DATA *my_struct)
   {
     std::stringstream ss;
 
     ss << my_struct->right_desire_rpm << " "  << my_struct->left_desire_rpm << " " 
-        << " "  << (my_struct->e1234567) << " " << (int16_t)(my_struct->checksum) << "\r\n";
+        << " "  << (my_struct->estop) << " " <<(my_struct->led1) << " " <<(my_struct->led2) << " " <<
+        (my_struct->led3) << " " <<(my_struct->led4) << " " << (my_struct->checksum) << "\r\n";
 
     send_msg(ss.str());
   }
@@ -167,4 +194,4 @@ private:
     int timeout_ms_;
 };
 
-#endif // _ROM_MCU_SERIAL_HPP
+#endif // bobo_hardware_COMMS_HPP

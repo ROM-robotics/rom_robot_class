@@ -12,7 +12,7 @@
 
 namespace bobo_hardware
 {
-using CmdType = std_msgs::msg::Float64MultiArray;
+//using CmdType = std_msgs::msg::Float64MultiArray;
 using romCmdType = std_msgs::msg::Float32;  // ROM ADD
 
 class GPIOController : public controller_interface::ControllerInterface
@@ -43,28 +43,38 @@ protected:
   void initMsgs();
 
   // internal commands
-  //Original--> std::shared_ptr<CmdType> output_cmd_ptr_;
+  // ဒါက std_msgs::Float32 shared pointer
   std::shared_ptr<romCmdType> command_ptr0; // ROM ADD
   std::shared_ptr<romCmdType> command_ptr1;
   std::shared_ptr<romCmdType> command_ptr2;
   std::shared_ptr<romCmdType> command_ptr3;
   std::shared_ptr<romCmdType> command_ptr4;
 
-  // publisher
+  // gpio_controller node ရဲ့ publisher ၅ ခု
+  // gpio_controller/estop/status
+  // gpio_controller/led1/status
+  // gpio_controller/led2/status
+  // gpio_controller/led3/status
+  // gpio_controller/led4/status
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> stop_publisher0_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher1_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher2_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher3_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher4_;
 
-  //Original --> control_msgs::msg::InterfaceValue gpio_msg_;
+  // ဒါက publish လုပ်မည့် message တွေ 
   std_msgs::msg::Float32 estop_msg_; // ROM ADD
   std_msgs::msg::Float32 gpio_msg1_; 
   std_msgs::msg::Float32 gpio_msg2_; 
   std_msgs::msg::Float32 gpio_msg3_; 
   std_msgs::msg::Float32 gpio_msg4_; 
 
-  // subscriber
+  // gpio_controller node ရဲ့ subscriber ၅ ခု
+  // gpio_controller/estop/command
+  // gpio_controller/led1/command
+  // gpio_controller/led2/command
+  // gpio_controller/led3/command
+  // gpio_controller/led4/command
   rclcpp::Subscription<romCmdType>::SharedPtr wheels_estop_command0_;
   rclcpp::Subscription<romCmdType>::SharedPtr subscription_command1_;
   rclcpp::Subscription<romCmdType>::SharedPtr subscription_command2_;
