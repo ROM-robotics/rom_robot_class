@@ -1,3 +1,0 @@
-source;share/stm32f4_system_interface_gpio/environment/ament_prefix_path.sh
-source;share/stm32f4_system_interface_gpio/environment/library_path.sh
-source;share/stm32f4_system_interface_gpio/environment/path.sh

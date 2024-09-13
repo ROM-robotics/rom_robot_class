@@ -2,13 +2,14 @@
 
 #include <string>
 
+#define ROM_DEBUG 1
 namespace bobo_hardware
 {
 controller_interface::CallbackReturn GPIOController::on_init()
 { // Edited
   try
   {
-    auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>()); // ?
+    auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>()); // need or not
     auto_declare<std::vector<std::string>>("outputs", std::vector<std::string>());
   }
   catch (const std::exception & e)
@@ -23,7 +24,7 @@ controller_interface::InterfaceConfiguration GPIOController::command_interface_c
 { // Edited
   controller_interface::InterfaceConfiguration config;
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
-  config.names = outputs_;
+  config.names = outputs_; // need or not
 
   return config;
 }
@@ -32,7 +33,7 @@ controller_interface::InterfaceConfiguration GPIOController::state_interface_con
 { // Edited
   controller_interface::InterfaceConfiguration config;
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
-  config.names = inputs_;
+  config.names = inputs_; // need or not
 
   return config;
 }
@@ -44,6 +45,7 @@ controller_interface::return_type GPIOController::update(
   //RCLCPP_DEBUG(
       // get_node()->get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "%s: (%f)", state_interfaces_[0].get_name().c_str(),
       // state_interfaces_[0].get_value());
+    #ifdef ROM_DEBUG
       RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[0].get_name().c_str(),
       state_interfaces_[0].get_value());
        RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[1].get_name().c_str(),
@@ -54,6 +56,8 @@ controller_interface::return_type GPIOController::update(
       state_interfaces_[3].get_value());
        RCLCPP_INFO(rclcpp::get_logger("\033[1;35mROM DYNAMICS\033[1;0m"), "\033 %s (%f)\033[1;0m",state_interfaces_[4].get_name().c_str(),
       state_interfaces_[4].get_value());
+    #endif
+
   estop_msg_.data = static_cast<float>(state_interfaces_[0].get_value());
   stop_publisher0_->publish(estop_msg_);
   
@@ -97,7 +101,7 @@ controller_interface::CallbackReturn GPIOController::on_configure(
 { // Edited
   try
   {
-    inputs_ = get_node()->get_parameter("inputs").as_string_array();
+    inputs_ = get_node()->get_parameter("inputs").as_string_array(); // need or not ?
     outputs_ = get_node()->get_parameter("outputs").as_string_array();
 
     initMsgs();

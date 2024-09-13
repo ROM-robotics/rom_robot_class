@@ -157,7 +157,7 @@ Stm32Hardware::export_state_interfaces()     // MCU ကနေ ROS ကို သ�
   for (size_t i = 0; i < info_.gpios.size(); i++)     // gpio ရှိသလောက်
   {
     for (auto state_if : info_.gpios.at(i).state_interfaces) // gpio တစ်ခုဆီမှာ state interface ရှိသလောက်
-    { // gpio ရဲ့ state ကို export လုပ်ရမယ်။
+    { // gpio ရဲ့ state ကို export လုပ်ရမယ်။ ဒါက MCU ကနေ ros ကို သွားဖို့ဖြစ်ပါတယ်။
       state_interfaces.emplace_back(hardware_interface::StateInterface(info_.gpios.at(i).name, state_if.name, &hw_gpio_states[i]));
       RCLCPP_INFO(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "Added %s/%s",info_.gpios.at(i).name.c_str(), state_if.name.c_str());
     }
@@ -177,7 +177,7 @@ Stm32Hardware::export_command_interfaces()   // MCU ကို သွားမည
     wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.cmd));
 
   // ROM ADD
-  
+  // MCU ကို သွားမည့် GPIO COMMANDS များဖြစ်သည်။
   hw_gpio_commands.resize(4);
   for (size_t i = 0; i < info_.gpios.size(); i++)
   {
@@ -300,7 +300,7 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     // hw_gpio_states[3] = _Bool(receive_data.e1234567 & 0b0000000000010000);
     // hw_gpio_states[4] = _Bool(receive_data.e1234567 & 0b0000000000001000);
 
-    
+    // mcu ကနေ read ပြီး state ထဲထည့်တယ်။
     hw_gpio_states[0] = receive_data.estop;
     hw_gpio_states[1] = receive_data.led1;
     hw_gpio_states[2] = receive_data.led2;
@@ -365,6 +365,7 @@ Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*p
   */
   
   // not equl zero to be check 
+  // ros က data ကို mcu ထဲ ပို့မလို့ဖြစ်သည်။
   hw_gpio_commands[0] != 0  ?  transmit_data.estop = 1  :  transmit_data.estop = 0;
   hw_gpio_commands[1] != 0  ?  transmit_data.led1 = 1   :  transmit_data.led1 = 0;
   hw_gpio_commands[2] != 0  ?  transmit_data.led2 = 1   :  transmit_data.led2 = 0;

@@ -43,7 +43,7 @@ protected:
   void initMsgs();
 
   // internal commands
-  // ဒါက std_msgs::Float32 shared pointer
+  // ဒါက std_msgs::Float32 message အတွက် shared pointer
   std::shared_ptr<romCmdType> command_ptr0; // ROM ADD
   std::shared_ptr<romCmdType> command_ptr1;
   std::shared_ptr<romCmdType> command_ptr2;
@@ -51,11 +51,13 @@ protected:
   std::shared_ptr<romCmdType> command_ptr4;
 
   // gpio_controller node ရဲ့ publisher ၅ ခု
-  // gpio_controller/estop/status
-  // gpio_controller/led1/status
-  // gpio_controller/led2/status
-  // gpio_controller/led3/status
-  // gpio_controller/led4/status
+  /* 
+  gpio_controller/estop/status
+  gpio_controller/led1/status
+  gpio_controller/led2/status
+  gpio_controller/led3/status
+  gpio_controller/led4/status
+  */
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> stop_publisher0_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher1_;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher2_;
