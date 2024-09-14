@@ -12,13 +12,17 @@
         </xacro:if>
         <xacro:unless value="${use_mock_hardware}">
           <plugin>bobo_hardware/IMUController</plugin>
-          <param name="example_param_hw_start_duration_sec">0.0</param>
-          <param name="example_param_hw_stop_duration_sec">3.0</param>
-          <param name="example_param_max_sensor_change">5.0</param>
+          <param name="coef_m">1.0</param> 
+          <param name="bias_b">360.0</param>
+          <param name="period">5.0</param>
+          <param name="frame_id">imu_link</param>
         </xacro:unless>
       </hardware>
+      <sensor name="imu">
+        <state_interface name="yaw"/>
+      </sensor>
 
-      <sensor name="${prefix}tcp_fts_sensor">
+      <!-- <sensor name="${prefix}tcp_fts_sensor">
         <state_interface name="force.x"/>
         <state_interface name="force.y"/>
         <state_interface name="force.z"/>
@@ -32,7 +36,7 @@
         <param name="tx_range">15</param>
         <param name="ty_range">15</param>
         <param name="tz_range">15</param>
-      </sensor>
+      </sensor> -->
     </ros2_control>
   </xacro:macro>
 

@@ -29,6 +29,7 @@ add_library(
   SHARED
   hardware/diffbot_system.cpp
   controllers/gpio_controller.cpp
+  controllers/imu_controller.cpp
 )
 
 target_compile_features(bobo_hardware PUBLIC cxx_std_17)

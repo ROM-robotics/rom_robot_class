@@ -75,3 +75,7 @@ gpio_controller:
      - led3/digital_command
      - led4/digital_command
      - estop1/digital_command
+imu_controller:
+  ros__parameters:
+    inputs:
+     - imu1/yaw_heading

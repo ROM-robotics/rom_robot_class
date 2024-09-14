@@ -20,8 +20,12 @@
         <param name="pid_i">0</param>
         <param name="pid_o">50</param>
 
-        <param name="led_max_volt">5</param>
-        <param name="led_min_volt">0</param>
+        <param name="imu_coef_m_for_positive_degree">0.00550</param> 
+        <param name="imu_bias_b_for_positive_degree">-0.2891</param>
+        <param name="imu_coef_m_for_negative_degree">0.00550</param> 
+        <param name="imu_bias_b_for_negative_degree">-360.0</param>
+        <param name="imu_period">5.0</param>
+        <param name="imu_link_name">imu_link</param>
       </hardware>
       <joint name="${prefix}left_wheel_joint">
         <command_interface name="velocity"/>
@@ -54,6 +58,11 @@
         <command_interface name="digital_command"/>
         <state_interface   name="digital_status"/>
       </gpio>
+
+      <!-- IMU -->
+      <sensor name="imu">
+        <state_interface name="yaw_heading"/>
+      </sensor>
       <!-- ROM DYNAMICS ADD -->
     </ros2_control>
 

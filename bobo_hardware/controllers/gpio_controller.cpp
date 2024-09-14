@@ -6,11 +6,11 @@
 namespace bobo_hardware
 {
 controller_interface::CallbackReturn GPIOController::on_init()
-{ // Edited
+{ // OK
   try
   {
-    auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>()); // need or not
-    auto_declare<std::vector<std::string>>("outputs", std::vector<std::string>());
+    auto_declare<std::vector<std::string>>("inputs", std::vector<std::string>()); // param ရဲ့ inputs
+    auto_declare<std::vector<std::string>>("outputs", std::vector<std::string>());// param ရဲ့ outputs
   }
   catch (const std::exception & e)
   {
@@ -21,19 +21,19 @@ controller_interface::CallbackReturn GPIOController::on_init()
 }
 
 controller_interface::InterfaceConfiguration GPIOController::command_interface_configuration() const
-{ // Edited
+{ // config လုပ်ပြီးသားကို return ပေးတယ်။
   controller_interface::InterfaceConfiguration config;
-  config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
-  config.names = outputs_; // need or not
+  config.type = controller_interface::interface_configuration_type::INDIVIDUAL; // ALL, INDIVIDUAL, NONE
+  config.names = outputs_; // param ထဲက output string တွေသည် IfConfiguration ထဲရောက်သွားမယ်။
 
   return config;
 }
 
 controller_interface::InterfaceConfiguration GPIOController::state_interface_configuration() const
-{ // Edited
+{ // config လုပ်ပြီးသားကို return ပေးတယ်။
   controller_interface::InterfaceConfiguration config;
-  config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
-  config.names = inputs_; // need or not
+  config.type = controller_interface::interface_configuration_type::INDIVIDUAL; // ALL, INDIVIDUAL, NONE
+  config.names = inputs_; // param ထဲက output string တွေသည် IfConfiguration ထဲရောက်သွားမယ်။
 
   return config;
 }
@@ -80,7 +80,9 @@ controller_interface::return_type GPIOController::update(
   }
   if (command_ptr1 != nullptr) {
     command_interfaces_[1].set_value(command_ptr1->data);
+    #ifdef ROM_DEBUG
     RCLCPP_INFO(get_node()->get_logger(), "%s: (%f)", command_interfaces_[1].get_name().c_str(), command_interfaces_[1].get_value());
+    #endif
   }
   if (command_ptr2 != nullptr) {
     command_interfaces_[2].set_value(command_ptr2->data);
@@ -101,8 +103,8 @@ controller_interface::CallbackReturn GPIOController::on_configure(
 { // Edited
   try
   {
-    inputs_ = get_node()->get_parameter("inputs").as_string_array(); // need or not ?
-    outputs_ = get_node()->get_parameter("outputs").as_string_array();
+    inputs_ = get_node()->get_parameter("inputs").as_string_array();   // input paramter ကိုရယူတယ်။
+    outputs_ = get_node()->get_parameter("outputs").as_string_array(); // output parameter ကို ရယူတယ်။
 
     initMsgs();
 
@@ -157,11 +159,11 @@ controller_interface::CallbackReturn GPIOController::on_activate(
 
 controller_interface::CallbackReturn GPIOController::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
-{ // Edited
+{ // OK
   try
   {
     // reset publisher
-    stop_publisher0_.reset(); // ?
+    stop_publisher0_.reset(); 
     gpio_publisher1_.reset();
     gpio_publisher2_.reset();
     gpio_publisher3_.reset();

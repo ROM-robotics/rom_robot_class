@@ -36,9 +36,10 @@ public:
   CallbackReturn on_init() override;
 
 private:
-  std::vector<std::string> inputs_;
-  std::vector<std::string> outputs_;
-
+  std::vector<std::string> inputs_;   // launch ဖိုင်က inputs ဆိုတဲ့ parameter တွေကို ရယူဖို့
+  std::vector<std::string> outputs_;  // launch ဖိုင်က outputs ဆိုတဲ့ parameter တွေကို ရယူဖို့
+  // parameter တွေကို diffbot_controllers.yaml ကနေ CM ကနေ ယူတယ်လို့ယူဆတယ်။
+  // ဒါမှမဟုတ် launch မှာ gpio_contorller မှာ အဲ့ဒီ diffbot_controllers.yaml ကိုပဲ param ဖိုင်ဆိုပြီးထည့်ပေးလို့ရပါတယ်။
 protected:
   void initMsgs();
 
