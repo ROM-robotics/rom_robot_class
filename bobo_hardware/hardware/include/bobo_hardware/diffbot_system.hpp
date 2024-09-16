@@ -34,10 +34,8 @@
 #include "bobo_hardware/stm32_comms.hpp"
 #include "bobo_hardware/wheel.hpp"
 
-//#include "bobo_hardware/rom_led.hpp"
-
 #include "bobo_hardware/gpio_controller.hpp"
-
+//# header for imu
 namespace bobo_hardware
 {
 class Stm32Hardware : public hardware_interface::SystemInterface
@@ -61,11 +59,13 @@ struct Config
   int led_max_volt = 0;
   int led_min_volt = 0;
 
-  // ဒါက imu အတွက်
+  // ဒါက imu အတွက် y = mx + b
   double imu_hw_coef_m_for_pos;
   double imu_hw_bias_b_for_pos;
+
   double imu_hw_coef_m_for_neg;
   double imu_hw_bias_b_for_neg;
+  
   double imu_hw_period;
   std::string imu_link_name;
 };
@@ -118,6 +118,7 @@ private:
 
   std::vector<double> hw_gpio_commands;
   std::vector<double> hw_gpio_states;
+  
   std::vector<double> hw_imu_states;
   
 };

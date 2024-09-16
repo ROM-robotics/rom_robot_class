@@ -12,6 +12,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   std_msgs
   pluginlib
   rclcpp
+  tf2
+  tf2_geometry_msgs
   rclcpp_lifecycle
   controller_interface
 )

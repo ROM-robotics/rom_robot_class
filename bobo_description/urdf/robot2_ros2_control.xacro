@@ -22,6 +22,7 @@
 
         <param name="imu_coef_m_for_positive_degree">0.00550</param> 
         <param name="imu_bias_b_for_positive_degree">-0.2891</param>
+        
         <param name="imu_coef_m_for_negative_degree">0.00550</param> 
         <param name="imu_bias_b_for_negative_degree">-360.0</param>
         <param name="imu_period">5.0</param>

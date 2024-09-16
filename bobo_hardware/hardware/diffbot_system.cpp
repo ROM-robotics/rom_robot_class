@@ -125,9 +125,9 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
     }
   }
 
-  if (info_.sensor.size() != 1)
+  if (info_.sensors.size() != 1)
   { // imu တခု  မရှိရင် Error ပြ။
-    RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "AMRSystemWithGPIO has '%ld' GPIO components, '%d' expected.", info_.sensor.size(), 1);
+    RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "AMRSystemWithGPIO has '%ld' GPIO components, '%d' expected.", info_.sensors.size(), 1);
     return hardware_interface::CallbackReturn::ERROR;
   }
 
@@ -183,7 +183,9 @@ Stm32Hardware::export_state_interfaces()     // MCU ကနေ ROS ကို သ�
   }
 
   // imu
-  state_interfaces.emplace_back(hardware_interface(info_.imu.name, info_.imu.state_interfaces.name, &hw_imu_states[0]));
+  //state_interfaces.emplace_back(hardware_interface::StateInterface(info_.sensors.at(0).name, info_.sensors.at(0).state_interfaces.name, &hw_imu_states[0]));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(info_.sensors.at(0).name, "yaw_heading", &hw_imu_states[0]));
+  
   return state_interfaces;
 }
 
@@ -248,7 +250,7 @@ Stm32Hardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)  
     hw_gpio_commands[i] = 0;
     hw_gpio_states[i]   = 0;
   }
-  hw_imu_states[0] = 0;
+  hw_imu_states[0] = 0; // လိုမလိုစစ်
 
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Successfully activated!");
 
@@ -313,24 +315,25 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     hw_gpio_states[3] = receive_data.led3;
     hw_gpio_states[4] = receive_data.led4;
 
-    unsigned short raw_heading  = receive_data.imu_z_vel;
+    unsigned short raw_heading  = receive_data.imu_z_vel;  // unsigned short
 
     /* remove imu bias */
     float filtered_heading = 0;
 
-    if( raw_heading >= 0 && raw_heading <= 180)
+    // စစ်ရန်
+    if( raw_heading >= 0 && raw_heading <= 32400)
     { // POSITIVE DEGREE
-      filtered_heading = (imu_hw_coef_m_for_pos*raw_heading) + (imu_hw_bias_b_for_pos);
+      filtered_heading = (cfg_.imu_hw_coef_m_for_pos * raw_heading) + (cfg_.imu_hw_bias_b_for_pos);
     } 
-    else ( raw_heading < 0 && raw_heading >= -180)
+    else if( raw_heading > 32400 && raw_heading <= 64858)
     { // NEGATIVE
-      filtered_heading = (imu_hw_coef_m_for_neg*raw_heading) + (imu_hw_bias_b_for_neg);
+      filtered_heading = (cfg_.imu_hw_coef_m_for_neg * raw_heading) + (cfg_.imu_hw_bias_b_for_neg);
     }
 
-    /* Zeroing */
+    /* Zeroing */ //----------------------------------------------
     // reset 0 heading as robot initial state ( where to write code ? ) --> robot_heading = zeroingImu(no_bias_heading)
 
-    hw_imu_states[0] = filter_heading;
+    hw_imu_states[0] = filtered_heading;
 
     #ifdef ROM_DEBUG
     RCLCPP_INFO(rclcpp::get_logger("\033[1;35mESTOP\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[0]);

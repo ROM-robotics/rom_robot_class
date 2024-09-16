@@ -9,8 +9,8 @@
 #include "sensor_msgs/msg/imu.hpp"
 #include "controller_interface/controller_interface.hpp"
 
-// #include <tf2/LinearMath/Quaternion.h>
-// #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/LinearMath/Quaternion.h>
+// #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace bobo_hardware
 {
@@ -21,7 +21,7 @@ class IMUController : public controller_interface::ControllerInterface
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(IMUController);
 
-  //controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 

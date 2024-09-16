@@ -46,13 +46,15 @@ controller_interface::return_type IMUController::update(
     #endif
 
   double yaw = static_cast<float>(state_interfaces_[0].get_value());
-  imu_msg_.header.stamp = this->get_clock()->now();
+  //imu_msg_.header.stamp = this->get_clock()->now();-------------------------------cccccccccccccccc
 
   tf2::Quaternion q;
   q.setRPY(0, 0, yaw);
-  tf2::convert(q, quat);
 
-  imu_msg_.orientation = q;
+  imu_msg_.orientation.x = q.x();
+  imu_msg_.orientation.y = q.y();
+  imu_msg_.orientation.z = q.z();
+  imu_msg_.orientation.w = q.w();
   // try to publish ...cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   imu_publisher_->publish(imu_msg_);
 
@@ -66,10 +68,10 @@ controller_interface::CallbackReturn IMUController::on_configure(
   {
     inputs_ = get_node()->get_parameter("inputs").as_string_array();   // input paramter ကိုရယူတယ်။ /imu1/yaw_heading
 
-    stop_publisher0_ = get_node()->create_publisher<romCmdType>(
+    imu_publisher_ = get_node()->create_publisher<romCmdType>(
       "~/imu", rclcpp::SystemDefaultsQoS());
 
-    imu_msg_.frame_id = "imu_link"; // this should be equal with urdf and ros2_control xacro
+    imu_msg_.header.frame_id = "imu_link"; // this should be equal with urdf and ros2_control xacro
     // Zero-initialize orientation (quaternion)
         imu_msg_.orientation.x = 0.0;
         imu_msg_.orientation.y = 0.0;
@@ -153,3 +155,4 @@ controller_interface::CallbackReturn IMUController::on_deactivate(
 
 PLUGINLIB_EXPORT_CLASS(
   bobo_hardware::IMUController, controller_interface::ControllerInterface)
+

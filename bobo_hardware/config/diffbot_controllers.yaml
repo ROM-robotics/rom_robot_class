@@ -13,6 +13,9 @@ controller_manager:
       type: bobo_hardware/GPIOController
     # ROM END  
 
+    imu_controller:
+      type: bobo_hardware/IMUController
+
 diffbot_base_controller:
   ros__parameters:
     left_wheel_names: ["left_wheel_joint"]
