@@ -321,7 +321,7 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     float filtered_heading = 0;
 
     // စစ်ရန်
-    if( raw_heading >= 0 && raw_heading <= 32400)
+    if(raw_heading <= 32400)
     { // POSITIVE DEGREE
       filtered_heading = (cfg_.imu_hw_coef_m_for_pos * raw_heading) + (cfg_.imu_hw_bias_b_for_pos);
     } 
@@ -377,20 +377,6 @@ Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*p
   // transmit_data.left_desire_rpm  = i++;
   // transmit_data.right_desire_rpm = j++;
 
-  // ROM ADD
-  /*
-  hw_gpio_commands[0] > 0  ?  e_leds_status.estop_status = 1  :  e_leds_status.estop_status = 0;
-  hw_gpio_commands[1] > 0  ?  e_leds_status.led1_status  = 1  :  e_leds_status.led1_status  = 0;
-  hw_gpio_commands[2] > 0  ?  e_leds_status.led2_status  = 1  :  e_leds_status.led2_status  = 0;
-  hw_gpio_commands[3] > 0  ?  e_leds_status.led3_status  = 1  :  e_leds_status.led3_status  = 0;
-  hw_gpio_commands[4] > 0  ?  e_leds_status.led4_status  = 1  :  e_leds_status.led4_status  = 0;
-
-  transmit_data.e1234567 = (int16_t) ( (e_leds_status.estop_status<<7) +
-  (e_leds_status.led1_status<<6) + (e_leds_status.led2_status<<5) + (e_leds_status.led3_status<<4) +
-  (e_leds_status.led4_status<<3) + (e_leds_status.led5_status>>2) + (e_leds_status.led6_status<<1) +
-  (e_leds_status.led7_status) );
-  */
-  
   // not equl zero to be check 
   // ros က data ကို mcu ထဲ ပို့မလို့ဖြစ်သည်။
   hw_gpio_commands[0] != 0  ?  transmit_data.estop = 1  :  transmit_data.estop = 0;

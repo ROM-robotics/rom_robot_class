@@ -27,7 +27,6 @@ install(DIRECTORY
 	launch
 	urdf
   meshes
-  sim_config
 	DESTINATION share/${PROJECT_NAME}
 )
 

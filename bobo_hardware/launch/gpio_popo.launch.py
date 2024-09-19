@@ -27,7 +27,7 @@ def generate_launch_description():
 
     robot_controllers_yaml = PathJoinSubstitution(
         [
-            FindPackageShare("bobo_hardware"),
+            FindPackageShare("stm32f4_system_interface_gpio"),
             "config",
             "diffbot_controllers.yaml",
         ]
