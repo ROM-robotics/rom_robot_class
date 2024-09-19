@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="bobobot_ros2_control" params="name prefix">
+  <xacro:macro name="diffbot_ros2_control" params="name prefix">
+  
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -15,10 +16,10 @@
         <param name="baud_rate">115200</param>
         <param name="timeout_ms">1000</param>
         <param name="enc_counts_per_rev">4096</param>
-        <param name="pid_p">20</param>
-        <param name="pid_d">12</param>
+        <param name="pid_p">0</param>
         <param name="pid_i">0</param>
-        <param name="pid_o">50</param>
+        <param name="pid_d">0</param>
+        <param name="pid_o">0</param>
 
         <param name="imu_coef_m_for_positive_degree">0.00550</param> 
         <param name="imu_bias_b_for_positive_degree">-0.2891</param>
@@ -26,7 +27,6 @@
         <param name="imu_coef_m_for_negative_degree">0.00550</param> 
         <param name="imu_bias_b_for_negative_degree">-360.0</param>
         <param name="imu_period">5.0</param>
-        <param name="imu_link_name">imu_link</param>
       </hardware>
       <joint name="${prefix}left_wheel_joint">
         <command_interface name="velocity"/>
@@ -59,14 +59,15 @@
         <command_interface name="digital_command"/>
         <state_interface   name="digital_status"/>
       </gpio>
-
-      <!-- IMU -->
-      <sensor name="imu">
-        <state_interface name="yaw_heading"/>
-      </sensor>
+      <gpio name="imu1">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
       <!-- ROM DYNAMICS ADD -->
     </ros2_control>
 
   </xacro:macro>
 
 </robot>
+
+

@@ -14,7 +14,7 @@ def generate_launch_description():
     # Check if we're told to use sim time
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    bobo_model = os.getenv('BOBO_MODEL', 'robot2') # robot1 , robot2, sim_robot2
+    bobo_model = os.getenv('BOBO_MODEL', 'robot2') # robot1 , robot2
     robot_urdf_name = bobo_model+'_complete.urdf.xacro'
 
     # Process the URDF file

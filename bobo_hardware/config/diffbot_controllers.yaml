@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 10  # Hz
+    update_rate: 20  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -12,9 +12,6 @@ controller_manager:
     gpio_controller:
       type: bobo_hardware/GPIOController
     # ROM END  
-
-    imu_controller:
-      type: bobo_hardware/IMUController
 
 diffbot_base_controller:
   ros__parameters:
@@ -72,14 +69,11 @@ gpio_controller:
      - led3/digital_status
      - led4/digital_status
      - estop1/digital_status
+     - imu1/digital_status
     outputs:
      - led1/digital_command
      - led2/digital_command
      - led3/digital_command
      - led4/digital_command
      - estop1/digital_command
-
-# imu_controller:
-#   ros__parameters:
-#     inputs:
-#      - imu1/yaw_heading
+     - imu1/digital_command

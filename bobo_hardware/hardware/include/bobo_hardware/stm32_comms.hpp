@@ -128,14 +128,6 @@ public:
     	tokens.push_back(token);
     }
     
-    // r_act_rpm = std::atoi(tokens[0].c_str());
-    // l_act_rpm = std::atoi(tokens[1].c_str());
-    // r_enc     = std::atoi(tokens[2].c_str());
-    // l_enc     = std::atoi(tokens[3].c_str());
-    // volt      = std::atoi(tokens[4].c_str());
-    // amp       = std::atof(tokens[5].c_str());
-    // led       = std::atoi(tokens[6].c_str());
-    // checksum  = std::atoi(tokens[7].c_str());
 
     data->right_actual_rpm     = std::atoi(tokens[0].c_str());
 		data->left_actual_rpm      = std::atoi(tokens[1].c_str());
@@ -151,8 +143,8 @@ public:
 		data->bump1                = std::atoi(tokens[11].c_str());
 		data->cliff                = std::atof(tokens[12].c_str());
 		data->ir                   = std::atof(tokens[13].c_str());
-		data->imu_z_vel            = std::atof(tokens[14].c_str());
-		data->imu_z_rotate         = std::atof(tokens[15].c_str());
+		data->imu_z_vel            = std::atoi(tokens[14].c_str());
+		data->imu_z_rotate         = std::atoi(tokens[15].c_str());
 		data->reserved1            = std::atoi(tokens[16].c_str());
 		data->reserved2            = std::atoi(tokens[17].c_str());
 		data->checksum             = std::atoi(tokens[18].c_str());

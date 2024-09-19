@@ -1,40 +1,73 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="bobobot_ros2_control" params="name prefix">
+  <xacro:macro name="diffbot_ros2_control" params="name prefix">
+  
 
     <ros2_control name="${name}" type="system">
-        <hardware>
-            <plugin>bobo_hardware/Stm32Hardware</plugin>
-            <param name="left_wheel_name">wheel_left_joint</param>
-            <param name="right_wheel_name">wheel_right_joint</param>
-            <param name="loop_rate">40</param> 
-            <!-- <param name="device">/dev/robotController</param>  -->
-            <param name="device">/dev/ROBOTCOM</param>
-            <!--<param name="device">/dev/ttyS0</param> -->
-            <!--<param name="device">/dev/ttyUSB0</param> -->
-            <param name="baud_rate">115200</param>
-            <param name="timeout_ms">1000</param>
-            <param name="enc_counts_per_rev">4096</param>
-        </hardware>
-        <joint name="wheel_left_joint">
-            <command_interface name="velocity">
-                <param name="min">-50</param>
-                <param name="max">50</param>
-            </command_interface> 
-            <state_interface name="position"/>
-            <state_interface name="velocity"/>
-        </joint>
-        <joint name="wheel_right_joint">
-            <command_interface name="velocity">
-                <param name="min">-50</param>
-                <param name="max">50</param>
-            </command_interface> 
-            <state_interface name="position"/>
-            <state_interface name="velocity"/>
-        </joint>
+      <hardware>
+        <plugin>bobo_hardware/Stm32Hardware</plugin>
+        <param name="left_wheel_name">left_wheel_joint</param>
+        <param name="right_wheel_name">right_wheel_joint</param>
+        <param name="loop_rate">10</param>
+        <param name="device">/dev/ROBOTCOM</param>
+        <!-- <param name="device">/dev/ttyUSB0</param> -->
+        <!-- <param name="device">/dev/ttyACM0</param> -->
+        <param name="baud_rate">115200</param>
+        <param name="timeout_ms">1000</param>
+        <param name="enc_counts_per_rev">4096</param>
+        <param name="pid_p">0</param>
+        <param name="pid_i">0</param>
+        <param name="pid_d">0</param>
+        <param name="pid_o">0</param>
+
+        <param name="imu_coef_m_for_positive_degree">0.00550</param> 
+        <param name="imu_bias_b_for_positive_degree">-0.2891</param>
+        
+        <param name="imu_coef_m_for_negative_degree">0.00550</param> 
+        <param name="imu_bias_b_for_negative_degree">-360.0</param>
+        <param name="imu_period">5.0</param>
+      </hardware>
+      <joint name="${prefix}left_wheel_joint">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}right_wheel_joint">
+        <command_interface name="velocity"/>       <!-- diff drive => cm  => stm32f4    -->
+        <state_interface name="position"/>         <!-- stm32f4    => cm  => diff drive -->
+        <state_interface name="velocity"/>
+      </joint>
+      <!-- ROM DYNAMICS ADD -->
+      <gpio name="led1">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <gpio name="led2">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <gpio name="led3">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <gpio name="led4">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <gpio name="estop1">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <gpio name="imu1">
+        <command_interface name="digital_command"/>
+        <state_interface   name="digital_status"/>
+      </gpio>
+      <!-- ROM DYNAMICS ADD -->
     </ros2_control>
 
-    </xacro:macro>
+  </xacro:macro>
 
 </robot>
+
+

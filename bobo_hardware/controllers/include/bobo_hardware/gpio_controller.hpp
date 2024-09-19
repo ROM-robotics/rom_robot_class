@@ -9,10 +9,12 @@
 #include "std_msgs/msg/float64_multi_array.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "controller_interface/controller_interface.hpp"
+#include "sensor_msgs/msg/imu.hpp"
+#include <tf2/LinearMath/Quaternion.h>
 
 namespace bobo_hardware
 {
-//using CmdType = std_msgs::msg::Float64MultiArray;
+using romImuType = sensor_msgs::msg::Imu;  // ROM ADD
 using romCmdType = std_msgs::msg::Float32;  // ROM ADD
 
 class GPIOController : public controller_interface::ControllerInterface
@@ -36,48 +38,39 @@ public:
   CallbackReturn on_init() override;
 
 private:
-  std::vector<std::string> inputs_;   // launch ဖိုင်က inputs ဆိုတဲ့ parameter တွေကို ရယူဖို့
-  std::vector<std::string> outputs_;  // launch ဖိုင်က outputs ဆိုတဲ့ parameter တွေကို ရယူဖို့
-  // parameter တွေကို diffbot_controllers.yaml ကနေ CM ကနေ ယူတယ်လို့ယူဆတယ်။
-  // ဒါမှမဟုတ် launch မှာ gpio_contorller မှာ အဲ့ဒီ diffbot_controllers.yaml ကိုပဲ param ဖိုင်ဆိုပြီးထည့်ပေးလို့ရပါတယ်။
+  std::vector<std::string> inputs_;
+  std::vector<std::string> outputs_;
+
 protected:
   void initMsgs();
 
   // internal commands
-  // ဒါက std_msgs::Float32 message အတွက် shared pointer
+
+  // publisher
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> stop_publisher0_;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher1_;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher2_;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher3_;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher4_;
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::Imu>> imu_publisher_;
+
+
+  //Original --> control_msgs::msg::InterfaceValue gpio_msg_;
+  std_msgs::msg::Float32 estop_msg_; // ROM ADD
+  std_msgs::msg::Float32 gpio_msg1_; 
+  std_msgs::msg::Float32 gpio_msg2_; 
+  std_msgs::msg::Float32 gpio_msg3_; 
+  std_msgs::msg::Float32 gpio_msg4_; 
+  sensor_msgs::msg::Imu imu_msg_;
+
+   //Original--> std::shared_ptr<CmdType> output_cmd_ptr_;
   std::shared_ptr<romCmdType> command_ptr0; // ROM ADD
   std::shared_ptr<romCmdType> command_ptr1;
   std::shared_ptr<romCmdType> command_ptr2;
   std::shared_ptr<romCmdType> command_ptr3;
   std::shared_ptr<romCmdType> command_ptr4;
 
-  // gpio_controller node ရဲ့ publisher ၅ ခု
-  /* 
-  gpio_controller/estop/status
-  gpio_controller/led1/status
-  gpio_controller/led2/status
-  gpio_controller/led3/status
-  gpio_controller/led4/status
-  */
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> stop_publisher0_;
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher1_;
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher2_;
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher3_;
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float32>> gpio_publisher4_;
-
-  // ဒါက publish လုပ်မည့် message တွေ 
-  std_msgs::msg::Float32 estop_msg_; // ROM ADD
-  std_msgs::msg::Float32 gpio_msg1_; 
-  std_msgs::msg::Float32 gpio_msg2_; 
-  std_msgs::msg::Float32 gpio_msg3_; 
-  std_msgs::msg::Float32 gpio_msg4_; 
-
-  // gpio_controller node ရဲ့ subscriber ၅ ခု
-  // gpio_controller/estop/command
-  // gpio_controller/led1/command
-  // gpio_controller/led2/command
-  // gpio_controller/led3/command
-  // gpio_controller/led4/command
+  // subscriber
   rclcpp::Subscription<romCmdType>::SharedPtr wheels_estop_command0_;
   rclcpp::Subscription<romCmdType>::SharedPtr subscription_command1_;
   rclcpp::Subscription<romCmdType>::SharedPtr subscription_command2_;

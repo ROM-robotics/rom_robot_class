@@ -90,8 +90,8 @@ typedef struct {
 		int16_t bump1;
 		float   cliff;
 		float   ir;
-		float   imu_z_vel;
-		float   imu_z_rotate;
+		uint16_t   imu_z_vel;
+		uint16_t   imu_z_rotate;
 		int16_t reserved1;
 		int16_t reserved2;
 		int16_t checksum;
@@ -122,14 +122,14 @@ short calculateChecksumForPcData(PC_DATA *data)  //passed by pointer
 	short tmp = (short)(data->right_desire_rpm+data->left_desire_rpm+
 							data->estop+data->led1+data->led2+data->led3+
 							data->led4);
-	return tmp; 
+	return tmp;
 }
 /* PROTOCOL_2 */
-// MCU2PC 
-// [ rar lar rec lec rdr ldr  vol ampere estop led1 led2 led3 led4 bump1 cliff  ir  imu_z_vel imu_z_rotat reserved1 reserved2 checksum "\r\n"  ]   
+// MCU2PC
+// [ rar lar rec lec rdr ldr  vol ampere estop led1 led2 led3 led4 bump1 cliff  ir  imu_z_vel imu_z_rotat reserved1 reserved2 checksum "\r\n"  ]
 // [  2   2   4   4   2   2   2     4f     2     2     2    2    2    2   4f    4f     4f       4f          2         2         2        2 ]  =  58 Bytes
 // checksum မှာ float တန်ဖိုးထည့်မပေါင်းပါ။
-// PC2MCU 
+// PC2MCU
 // [ rdr ldr estop led1 led2 led3 led4 checksum "\r\n" ]
 // [  2   2    2     2    2    2   2      2        2   ] = 18 Bytes
 

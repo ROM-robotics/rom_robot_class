@@ -10,10 +10,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "bobo_hardware/rom_communication.h"
 
-PC_DATA transmit_data = {0,0,0,0,0,0,0,0};
-MCU_DATA receive_data = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+unsigned short no_of_sensors = 6;  //sensors(gpio) in urdf and HW robot
 
-//int16_t i=0; int16_t j=0;
 
 //#define ROM_DEBUG
 
@@ -31,15 +29,15 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
   }
   cfg_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
   cfg_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
-  cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]); // Not use
+  cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]);
   cfg_.device = info_.hardware_parameters["device"];
   cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
   cfg_.timeout_ms = std::stof(info_.hardware_parameters["timeout_ms"]);
   cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
-  //cfg_.led_max_volt = std::stoi(info_.hardware_parameters["led_max_volt"]);
-  //cfg_.led_min_volt = std::stoi(info_.hardware_parameters["led_min_volt"]);
-  // ဒါက imu အတွက်
+  // cfg_.led_max_volt = std::stoi(info_.hardware_parameters["led_max_volt"]);
+  // cfg_.led_min_volt = std::stoi(info_.hardware_parameters["led_min_volt"]);
+
   cfg_.imu_hw_coef_m_for_pos = std::stof(info_.hardware_parameters["imu_coef_m_for_positive_degree"]);
   cfg_.imu_hw_bias_b_for_pos = std::stof(info_.hardware_parameters["imu_bias_b_for_positive_degree"]);
 
@@ -48,7 +46,6 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
 
   cfg_.imu_hw_period = std::stof(info_.hardware_parameters["imu_period"]);
   cfg_.imu_link_name = info_.hardware_parameters["imu_link_name"];
-
 
   RCLCPP_INFO(rclcpp::get_logger(" =================== "), "================================");
   RCLCPP_INFO(rclcpp::get_logger(" \033[1;36mROM DYNAMIC Co.,Ltd \033[1;0m "), " \033[1;36mChecking parameters ... \033[1;0m");
@@ -104,31 +101,25 @@ Stm32Hardware::on_init(const hardware_interface::HardwareInfo & info)  // DONE
   }
 
   // ROM ADD
-  if (info_.gpios.size() != 5)
+  if (info_.gpios.size() != no_of_sensors)
   { // AMRSystemWithGPIO မှာ led ၄ ခုနဲ့ estop တခု စုစုပေါင်း ၅ ခုမရှိရင် Error ပြ။
-    RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "AMRSystemWithGPIO has '%ld' GPIO components, '%d' expected.", info_.gpios.size(), 5);
+    RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "AMRSystemWithGPIO has '%ld' GPIO components, '%d' expected.", info_.gpios.size(), no_of_sensors);
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < no_of_sensors ; i++)
   { // အဲ့ဒီ gpio တစ်ခုစီမှာ command interface တစ်ခုစီပါရမယ်။
     if (info_.gpios[i].command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "GPIO component %s has '%ld' command interfaces, '%d' expected.", info_.gpios[i].name.c_str(), info_.gpios[i].command_interfaces.size(), 1);
       return hardware_interface::CallbackReturn::ERROR;
     }
-
+  
     if (info_.gpios[i].state_interfaces.size() != 1)
     { // အဲ့ဒီ gpio တစ်ခုစီမှာ state interface တစ်ခုစီပါရမယ်။
       RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "GPIO component %s has '%ld' state interfaces, '%d' expected.", info_.gpios[i].name.c_str(), info_.gpios[i].state_interfaces.size(), 1);
       return hardware_interface::CallbackReturn::ERROR;
     }
-  }
-
-  if (info_.sensors.size() != 1)
-  { // imu တခု  မရှိရင် Error ပြ။
-    RCLCPP_FATAL(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "AMRSystemWithGPIO has '%ld' GPIO components, '%d' expected.", info_.sensors.size(), 1);
-    return hardware_interface::CallbackReturn::ERROR;
   }
 
   // ROM END
@@ -142,9 +133,8 @@ Stm32Hardware::on_configure(const rclcpp_lifecycle::State & /*previous_state*/) 
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Configuring ...please wait...");
 
   // ROM ADD
-  std::fill(hw_gpio_commands.begin(), hw_gpio_commands.end(), 0); //mcu ကလာတဲ့ data ကို update လုပ်ပေးရန်
+  std::fill(hw_gpio_commands.begin(), hw_gpio_commands.end(), 0);
   std::fill(hw_gpio_states.begin()  , hw_gpio_states.end()  , 0);
-  std::fill(hw_imu_states.begin()   , hw_imu_states.end()   , 0);
 
   // ROM END
   if (comms_.connected())
@@ -168,24 +158,17 @@ Stm32Hardware::export_state_interfaces()     // MCU ကနေ ROS ကို သ�
   state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_r_.name, hardware_interface::HW_IF_POSITION, &wheel_r_.pos));
   state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.vel));
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.vel));
-
   // ROM ADD
  
-  hw_gpio_states.resize(4);
+  hw_gpio_states.resize(no_of_sensors-1);
   for (size_t i = 0; i < info_.gpios.size(); i++)     // gpio ရှိသလောက်
   {
     for (auto state_if : info_.gpios.at(i).state_interfaces) // gpio တစ်ခုဆီမှာ state interface ရှိသလောက်
-    { // gpio ရဲ့ state ကို export လုပ်ရမယ်။ ဒါက MCU ကနေ ros ကို သွားဖို့ဖြစ်ပါတယ်။
+    { // gpio ရဲ့ state ကို export လုပ်ရမယ်။
       state_interfaces.emplace_back(hardware_interface::StateInterface(info_.gpios.at(i).name, state_if.name, &hw_gpio_states[i]));
       RCLCPP_INFO(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "Added %s/%s",info_.gpios.at(i).name.c_str(), state_if.name.c_str());
     }
   }
-
-  // imu
-  //state_interfaces.emplace_back(hardware_interface::StateInterface(info_.sensors.at(0).name, info_.sensors.at(0).state_interfaces.name, &hw_imu_states[0]));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(info_.sensors.at(0).name, "yaw_heading", &hw_imu_states[0]));
-  
   return state_interfaces;
 }
 
@@ -201,8 +184,8 @@ Stm32Hardware::export_command_interfaces()   // MCU ကို သွားမည
     wheel_r_.name, hardware_interface::HW_IF_VELOCITY, &wheel_r_.cmd));
 
   // ROM ADD
-  // MCU ကို သွားမည့် GPIO COMMANDS များဖြစ်သည်။
-  hw_gpio_commands.resize(4);
+  
+  hw_gpio_commands.resize(no_of_sensors-2);
   for (size_t i = 0; i < info_.gpios.size(); i++)
   {
     for (auto command_if : info_.gpios.at(i).command_interfaces)
@@ -250,7 +233,6 @@ Stm32Hardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)  
     hw_gpio_commands[i] = 0;
     hw_gpio_states[i]   = 0;
   }
-  hw_imu_states[0] = 0; // လိုမလိုစစ်
 
   RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "Successfully activated!");
 
@@ -269,17 +251,19 @@ Stm32Hardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
 hardware_interface::return_type 
 Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & period) // mcu က data ကို actual ထဲထည့်ထားတယ်။
 {
+  MCU_DATA receive_data = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   // warning hide
   ROM_UNUSED(period);
 
   if (!comms_.connected())
   {
-    RCLCPP_INFO(rclcpp::get_logger("Stm32Hardware"), "comms_.connected() is false.");
+    RCLCPP_INFO(rclcpp::get_logger("DiffBotSystemHardware"), "comms_.connected() is false.");
     return hardware_interface::return_type::ERROR;
   }
-
+  
   comms_.read_values(&receive_data);
   int16_t calculated_chksum = calculateChecksumForMcuData(&receive_data); 
+
 
 #ifdef ROM_DEBUG
   //RCLCPP_INFO(rclcpp::get_logger("\033[1;35mTx\033[1;0m"), "\033[1;35m Incoming : %s \033[1;0m", response.c_str());
@@ -307,33 +291,62 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     return hardware_interface::return_type::ERROR; // comment in Production
   }
   else 
-  {
-    // mcu ကနေ read ပြီး state ထဲထည့်တယ်။
+  { 
+    // Encoder values to wheel positions ( Author say check encoder overflows )
+    // တကယ်လို့ encoder counts နဲ့ သုံးရင် အောက်ပါ codes များ မလိုလောက်ပါ။
+    // လိုအပ်ချက်ပေါ်မူတည်ပြီး ပြင်ဆင်ပေးဖို့လိုတယ်။----------------------------------------------------------------------------------------------------------
+    wheel_l_.pos = wheel_l_.calc_enc_angle();                     // radian calculation Ok, but check encoder overflow
+    wheel_l_.vel = wheel_l_.actual_rpm * 0.10471975511965977;     // radians per delta seconds calculation OK
+
+    wheel_r_.pos = wheel_r_.calc_enc_angle();
+    wheel_r_.vel = wheel_l_.actual_rpm * 0.10471975511965977;    // radians per delta seconds calculation OK
+    
+    /// mcu ကနေ read ပြီး state ထဲထည့်တယ်။
     hw_gpio_states[0] = receive_data.estop;
     hw_gpio_states[1] = receive_data.led1;
     hw_gpio_states[2] = receive_data.led2;
     hw_gpio_states[3] = receive_data.led3;
     hw_gpio_states[4] = receive_data.led4;
 
-    unsigned short raw_heading  = receive_data.imu_z_vel;  // unsigned short
-
+    // RCLCPP_INFO(rclcpp::get_logger("\033[1;35m imu_z_rotate\033[1;0m"), "\033[1;35m %u \033[1;0m", receive_data. imu_z_rotate);
+    // RCLCPP_INFO(rclcpp::get_logger("\033[1;35m imu_z_vel\033[1;0m"), "\033[1;35m %u \033[1;0m", receive_data. imu_z_vel);
+    unsigned short raw_heading  = receive_data. imu_z_rotate;  // unsigned short
+    unsigned short imu_velocity = receive_data.imu_z_vel;
+    ROM_UNUSED(imu_velocity);
     /* remove imu bias */
-    float filtered_heading = 0;
+    double filtered_heading = 0;
 
     // စစ်ရန်
     if(raw_heading <= 32400)
     { // POSITIVE DEGREE
-      filtered_heading = (cfg_.imu_hw_coef_m_for_pos * raw_heading) + (cfg_.imu_hw_bias_b_for_pos);
+      int plus_degree = (int)((cfg_.imu_hw_coef_m_for_pos * raw_heading) + (cfg_.imu_hw_bias_b_for_pos));
+      filtered_heading = (double)(plus_degree*0.01745329251); //radian(pi/180)
+      hw_gpio_states[5] = filtered_heading; //should need zeoring 
+
+      // velocity 
     } 
-    else if( raw_heading > 32400 && raw_heading <= 64858)
+    else if( raw_heading > 32400 && raw_heading <= 65534) //64858
     { // NEGATIVE
-      filtered_heading = (cfg_.imu_hw_coef_m_for_neg * raw_heading) + (cfg_.imu_hw_bias_b_for_neg);
+      int minus_degree = (int)((cfg_.imu_hw_coef_m_for_neg * raw_heading) + (cfg_.imu_hw_bias_b_for_neg));
+      filtered_heading = (double)(minus_degree*0.01745329251); //radian(pi/180)
+      hw_gpio_states[5] = filtered_heading; //should need zeoring 
+    }
+    else
+    {
+      //no publish
+      //return hardware_interface::return_type::OK;
     }
 
     /* Zeroing */ //----------------------------------------------
     // reset 0 heading as robot initial state ( where to write code ? ) --> robot_heading = zeroingImu(no_bias_heading)
+    // RCLCPP_INFO(rclcpp::get_logger("\033[1;35mfiltered_heading\033[1;0m"), "\033[1;35m %.4f \033[1;0m", filtered_heading);
 
-    hw_imu_states[0] = filtered_heading;
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mESTOP\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[0]);
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mLED 1\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[1]);
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mLED 2\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[2]);
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mLED 3\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[3]);
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mLED 4\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[4]);
+    RCLCPP_INFO(rclcpp::get_logger("\033[1;35mIMU 4\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[5]);
 
     #ifdef ROM_DEBUG
     RCLCPP_INFO(rclcpp::get_logger("\033[1;35mESTOP\033[1;0m"), "\033[1;35m %f \033[1;0m", hw_gpio_states[0]);
@@ -344,14 +357,7 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
     RCLCPP_INFO(rclcpp::get_logger("ROM AMRSystemWithGPIO"), "GPIOs hw_gpio_states[] read!");
     #endif
 
-    // Encoder values to wheel positions ( Author say check encoder overflows )
-    // တကယ်လို့ encoder counts နဲ့ သုံးရင် အောက်ပါ codes များ မလိုလောက်ပါ။
-    // လိုအပ်ချက်ပေါ်မူတည်ပြီး ပြင်ဆင်ပေးဖို့လိုတယ်။
-    wheel_l_.pos = wheel_l_.calc_enc_angle();                     // radian calculation Ok, but check encoder overflow
-    wheel_l_.vel = wheel_l_.actual_rpm * 0.10471975511965977;     // radians per delta seconds calculation OK
-
-    wheel_r_.pos = wheel_r_.calc_enc_angle();
-    wheel_r_.vel = wheel_r_.actual_rpm * 0.10471975511965977;    // radians per delta seconds calculation OK
+   
 
   // RCLCPP_INFO(rclcpp::get_logger("\033[1;36mIncoming Message\033[1;0m"), "\033[1;36m%d %d %d %d %d\033[1;0m", wheel_r_.actual_rpm, wheel_l_.actual_rpm, wheel_r_.enc, wheel_l_.enc, wheel_r_.bat_status);
   }
@@ -365,6 +371,7 @@ Stm32Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & peri
 hardware_interface::return_type 
 Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) // PC က desire ကို e123 ထဲထည့်။
 {
+  PC_DATA transmit_data = {0,0,0,0,0,0,0,0};
   if (!comms_.connected())
   {
     RCLCPP_INFO(rclcpp::get_logger("[ Robot VCOM port ]"), "comms_.connected() is false.");
@@ -374,20 +381,15 @@ Stm32Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*p
   // ဒါက radian per second ကို revolute per minute ပြောင်းဖို့လိုတယ်။
   transmit_data.left_desire_rpm  = (wheel_l_.cmd * 9.54929658551); // 60/(2*pi)
   transmit_data.right_desire_rpm = (wheel_r_.cmd * 9.54929658551);
-  // transmit_data.left_desire_rpm  = i++;
-  // transmit_data.right_desire_rpm = j++;
 
-  // not equl zero to be check 
-  // ros က data ကို mcu ထဲ ပို့မလို့ဖြစ်သည်။
+  // ROM ADD
   hw_gpio_commands[0] != 0  ?  transmit_data.estop = 1  :  transmit_data.estop = 0;
   hw_gpio_commands[1] != 0  ?  transmit_data.led1 = 1   :  transmit_data.led1 = 0;
   hw_gpio_commands[2] != 0  ?  transmit_data.led2 = 1   :  transmit_data.led2 = 0;
   hw_gpio_commands[3] != 0  ?  transmit_data.led3  = 1  :  transmit_data.led3  = 0;
   hw_gpio_commands[4] != 0  ?  transmit_data.led4  = 1  :  transmit_data.led4 = 0;
-  
 
-  
-  // ROM END
+ // ROM END
   transmit_data.checksum = 0;
   transmit_data.checksum = calculateChecksumForPcData(&transmit_data);
 

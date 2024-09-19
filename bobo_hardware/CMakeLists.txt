@@ -11,9 +11,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   control_msgs
   std_msgs
   pluginlib
-  rclcpp
   tf2
-  tf2_geometry_msgs
+  rclcpp
   rclcpp_lifecycle
   controller_interface
 )
@@ -31,7 +30,6 @@ add_library(
   SHARED
   hardware/diffbot_system.cpp
   controllers/gpio_controller.cpp
-  controllers/imu_controller.cpp
 )
 
 target_compile_features(bobo_hardware PUBLIC cxx_std_17)
@@ -63,10 +61,10 @@ install(
   DIRECTORY hardware/include/
   DESTINATION include/bobo_hardware
 )
-# install(
-#   DIRECTORY description/launch description/ros2_control description/urdf description/rviz
-#   DESTINATION share/bobo_hardware
-# )
+install(
+  DIRECTORY
+  DESTINATION share/bobo_hardware
+)
 install(
   DIRECTORY launch config
   DESTINATION share/bobo_hardware
@@ -77,7 +75,6 @@ install(TARGETS bobo_hardware
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
-
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)

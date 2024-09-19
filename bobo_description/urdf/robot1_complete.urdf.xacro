@@ -4,11 +4,10 @@
     <xacro:arg name="prefix" default="" />
 
     <xacro:include filename="$(find bobo_description)/urdf/$(env BOBO_MODEL).xacro" />
-    <!-- <xacro:include filename="robot1.xacro" /> -->
-    
+   
     <xacro:include filename="$(env BOBO_MODEL)_ros2_control.xacro" /> 
-    <!-- <xacro:include filename="robot1_ros2_control.xacro" /> -->
 
-    <xacro:bobobot_ros2_control name="bobobot" prefix="$(arg prefix)" />
+
+    <xacro:diffbot_ros2_control name="DiffBot" prefix="$(arg prefix)" />
     
 </robot>
